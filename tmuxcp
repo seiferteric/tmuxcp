@@ -22,7 +22,7 @@ rm -f $DST
 tmux pipe-pane
 tmux send Enter
 tmux send 'split -u -b 100k --filter '"'"'gzip -c | base64 -w 0 | echo "~BEGIN~$(</dev/stdin)~END~"'"' $SRC ; echo "~FINISH~" ; echo"
-tmux pipe-pane 'awk '"'"'{ if ($0 !~ /split /) {if ($0 ~ /~FINISH~/) {print $0 > "'"$TMP"'"; system("")}else {print $0} }}'"'"' | sed -e "s/.*~BEGIN~//g" -e "s/~END~.*//g" | base64 -d | gunzip >>'"$DST"
+tmux pipe-pane 'awk '"'"'{ if ($0 !~ /split /) {if ($0 ~ /~FINISH~/) {print $0 > "'"$TMP"'"; system("")}else {sub(/.*~BEGIN~/, ""); sub(/~END~.*/, ""); print} }}'"'"' | base64 -d | gunzip >>'"$DST"
 tmux send Enter
 
 while ! grep -q "~FINISH~" "$TMP"; do
